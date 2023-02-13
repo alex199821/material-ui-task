@@ -24,13 +24,26 @@ export const theme = createTheme({
         },
       },
     },
-    MUIDataTableHeadCell: {
+    MuiButtonBase: {
       styleOverrides: {
         root: {
-          //   backgroundColor: "#1D252D",
           //   color: "rgb(255, 255, 255)",
           //   borderBottom: "none",
           textTransform: "none",
+          padding: "0px",
+          fontWeight: "700",
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          //   color: "rgb(255, 255, 255)",
+          //   borderBottom: "none",
+          textTransform: "none",
+          padding: "0px",
+          fontWeight: "700",
+
         },
       },
     },

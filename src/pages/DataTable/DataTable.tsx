@@ -1,4 +1,6 @@
 import React from "react";
+import { useState } from "react";
+
 import MUIDataTable, { MUIDataTableColumn } from "mui-datatables";
 import {
   styled,
@@ -76,7 +78,8 @@ const DataTable = () => {
       data={users}
       columns={columns}
       options={{
-        filterType: "checkbox",
+        filterType: "dropdown",
+        responsive: "vertical",
         textLabels: {
           pagination: {
             rowsPerPage: "მწკრივების რაოდენობა გვერდზე",
@@ -85,6 +88,7 @@ const DataTable = () => {
         rowsPerPage: 10,
         rowsPerPageOptions: [10, 20, 50],
         selectableRows: "none",
+        
       }}
     />
   );
