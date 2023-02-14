@@ -1,11 +1,17 @@
 import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import "./App.css";
-import DataTable from "./pages/DataTable/DataTable";
+import DataTable from "./pages/DataTable";
+import UserForm from "./pages/UserForm";
 function App() {
   return (
-    <div className="App">
-      <DataTable />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<DataTable />} />
+        <Route path="userform" element={<UserForm />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
