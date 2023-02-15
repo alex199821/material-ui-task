@@ -1,19 +1,22 @@
-enum Gender {
+import { dateToTimestamp } from "./dateFormatter";
+export enum Gender {
   Male = "Male",
   Female = "Female",
 }
 
 export interface User {
-  id: number;
+  id?: number;
   personalId: string;
   name: string;
   surname: string;
-  gender: Gender;
-  birthDate: Date;
+  gender: Gender | string;
+  birthDate: any;
   birthPlace: string;
-  phoneNumber: number;
+  phoneNumber: number | string;
   address: string;
 }
+
+console.log(dateToTimestamp(new Date(1998, 8, 23)));
 
 export const users: User[] = [
   {
@@ -22,7 +25,7 @@ export const users: User[] = [
     name: "John",
     surname: "Doe",
     gender: Gender.Male,
-    birthDate: new Date(1980, 1, 23),
+    birthDate: 320097600,
     birthPlace: "Tbilisi, Georgia",
     phoneNumber: 593235432,
     address: "Rustaveli 23, Tbilisi, Georgia",

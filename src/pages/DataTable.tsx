@@ -12,21 +12,23 @@ import MUIDataTable, {
 //   Theme,
 //   makeStyles,
 // } from "@mui/material/styles";
-import { users } from "../utils/mockData";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import OpenFormButton from "../components/OpenFormButton";
 import AddIcon from "@mui/icons-material/Add";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../Store";
 // import styles from "./styles";
 
 const DataTable = () => {
   const navigate = useNavigate();
 
+  const { usersData } = useSelector((state: RootState) => state.usersData);
+
   const handleEdit = (dataTableProps: MUIDataTableData) => {
-    let pop = dataTableProps;
-    console.log(pop[0]);
+    let id = dataTableProps["0" as keyof typeof dataTableProps];
+    console.log(id);
   };
 
   const handleNewRow = () => {
@@ -141,7 +143,7 @@ const DataTable = () => {
     <>
       <MUIDataTable
         title={""}
-        data={users}
+        data={usersData}
         columns={columns}
         options={{
           responsive: "standard",
