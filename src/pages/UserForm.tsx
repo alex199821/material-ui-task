@@ -1,7 +1,5 @@
-// /https://stackoverflow.com/questions/62242657/how-to-change-react-hook-form-defaultvalue-with-useeffect
-//how to display default values in react hook form if they are undefined and being fetched from api
 //Components from Libraries
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import {
   Button,
@@ -20,13 +18,22 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../Store";
 import { useNavigate, useLocation } from "react-router-dom";
 //Reducers
-import { addNewRow } from "../features/usersDataSlice";
+import { addNewRow, editRow } from "../features/usersDataSlice";
 //Styles
 import { Theme } from "@mui/material/styles";
 //Utils
-import { Gender, users, User } from "../utils/mockData";
-import { dateToTimestamp } from "../utils/dateFormatter";
+import { Gender, User } from "../utils/mockData";
+import {
+  dateToTimestamp,
+  timestampToDate,
+  isPastDate,
+  generateRandomId,
+  isAtLeastElevenCharacters,
+  checkOriginalIdNumber,
+  findUserById,
+} from "../utils/helperFunctions";
 
+//Srtles for User Form
 const styles = {
   formHeaderLabel: () => ({
     fontSize: "20px",
@@ -50,35 +57,28 @@ const styles = {
   }),
 };
 
-type FormValues = {
-  personalId: string;
-  name: string;
-  surname: string;
-  gender: Gender | string;
-  birthDate: Date;
-  birthPlace: string;
-  phoneNumber: number | string;
-  address: string;
-};
-
-// export type NavigateProps = {
-//   id: any;
-// };
-
 const UserForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { usersData } = useSelector((state: RootState) => state.usersData);
-  const [editingRowId, setEditingRowId] = useState<number | null>(null);
-  const [userInEditing, setUserInEditing] = useState<User | undefined>(
-    undefined
-  );
-  const { state } = useLocation();
 
-  const findObjectById = (usersAr: User[], id: number): User | undefined => {
-    return usersAr.find((usersAr) => usersAr.id === id);
-  };
+  //Default data for form
+  const [formDefaultData, setFormDefaultData] = useState<User | undefined>({
+    personalId: "",
+    name: "",
+    surname: "",
+    gender: "",
+    birthDate: undefined,
+    birthPlace: "",
+    phoneNumber: "",
+    address: "",
+  });
+
+  //Functions to set user and fill in inputs with default data if row is being edited
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+
+  const { state } = useLocation();
 
   useEffect(() => {
     if (state) {
@@ -89,72 +89,53 @@ const UserForm = () => {
   }, [state]);
 
   useEffect(() => {
-    if (editingRowId) {
-      setUserInEditing(findObjectById(usersData, editingRowId));
+    const userForEditing =
+      editingRowId && findUserById(usersData, editingRowId);
+    if (userForEditing && typeof userForEditing.birthDate === "number") {
+      setFormDefaultData({
+        ...userForEditing,
+        birthDate: timestampToDate(userForEditing.birthDate),
+      });
     }
   }, [editingRowId]);
 
   useEffect(() => {
-    console.log(userInEditing);
-  }, [userInEditing]);
+    reset(formDefaultData);
+  }, [formDefaultData]);
+
+  //React Form utilies
 
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<FormValues>({
-    defaultValues: {
-      personalId: userInEditing?.personalId || "",
-      name: "",
-      surname: "",
-      gender: "",
-      birthDate: undefined,
-      birthPlace: "",
-      phoneNumber: "",
-      address: "",
-    },
+  } = useForm<User>({
+    defaultValues: useMemo(() => {
+      return formDefaultData;
+    }, [formDefaultData]),
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data: FormValues) => {
-    const newRow = {
-      id: generateRandomId(),
-      personalId: data.personalId,
-      name: data.name,
-      surname: data.surname,
-      gender: data.gender,
-      birthDate: dateToTimestamp(data.birthDate),
-      birthPlace: data.birthPlace,
-      phoneNumber: data.phoneNumber,
-      address: data.address,
-    };
-    dispatch(addNewRow(newRow));
-    navigate("/");
-  };
-
-  const generateRandomId = (): number => {
-    const min = 10000000;
-    const max = 99999999;
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  };
-
-  const isPastDate = (date: Date): boolean => {
-    const now = new Date();
-    return date < now;
-  };
-
-  const checkOriginalIdNumber = (
-    users: User[],
-    personalId: string
-  ): boolean => {
-    let personalIdsArray = [];
-    for (const element of users) {
-      personalIdsArray.push(element.personalId);
+  const onSubmit: SubmitHandler<User> = (data: User) => {
+    if (data.birthDate instanceof Date && !editingRowId) {
+      dispatch(
+        addNewRow({
+          ...data,
+          id: generateRandomId(),
+          birthDate: dateToTimestamp(data.birthDate),
+        })
+      );
+      navigate("/");
+    } else if (data.birthDate instanceof Date && editingRowId) {
+      dispatch(
+        editRow({
+          ...data,
+          birthDate: dateToTimestamp(data.birthDate),
+        })
+      );
+      navigate("/");
     }
-    return personalIdsArray.includes(personalId);
   };
-
-  const isAtLeastElevenCharacters = (personalId: string): boolean =>
-    personalId.length >= 11;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -173,8 +154,11 @@ const UserForm = () => {
                 isAtLeastElevenCharacters(personalIdNumber) ||
                 "Personal Id number should be at least 11 characters long",
               checkOriginalIdNumber: (personalIdNumber) =>
-                !checkOriginalIdNumber(usersData, personalIdNumber) ||
-                "User with such Personal Id Number already exists",
+                checkOriginalIdNumber(
+                  usersData,
+                  personalIdNumber,
+                  editingRowId
+                ) || "User with such Personal Id Number already exists",
             },
           }}
           render={({ field }) => (
@@ -278,7 +262,8 @@ const UserForm = () => {
           rules={{
             validate: {
               isPastDate: (date) =>
-                isPastDate(date) || "Please, enter a past date",
+                (date instanceof Date && isPastDate(date)) ||
+                "Please, enter a past date",
             },
             required: "Birth Date is required",
           }}
@@ -287,6 +272,7 @@ const UserForm = () => {
               <DatePicker
                 {...field}
                 label="Date"
+                inputFormat="dd/MM/yyyy"
                 renderInput={(field) => (
                   <Box>
                     <TextField

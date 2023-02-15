@@ -1,4 +1,4 @@
-import { dateToTimestamp } from "./dateFormatter";
+import { dateToTimestamp } from "./helperFunctions";
 export enum Gender {
   Male = "Male",
   Female = "Female",
@@ -10,7 +10,7 @@ export interface User {
   name: string;
   surname: string;
   gender: Gender | string;
-  birthDate: number;
+  birthDate:  Date | number | undefined;
   birthPlace: string;
   phoneNumber: number | string;
   address: string;

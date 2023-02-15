@@ -1,17 +1,10 @@
 import React from "react";
-import { useState } from "react";
 
 import MUIDataTable, {
   MUIDataTableColumn,
   MUIDataTableData,
 } from "mui-datatables";
-// import {
-//   styled,
-//   withStyles,
-//   createStyles,
-//   Theme,
-//   makeStyles,
-// } from "@mui/material/styles";
+
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import OpenFormButton from "../components/OpenFormButton";
 import AddIcon from "@mui/icons-material/Add";
@@ -20,7 +13,20 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../Store";
 // import styles from "./styles";
-import { timestampToDate } from "../utils/dateFormatter";
+import { timestampToDate } from "../utils/helperFunctions";
+
+
+import {
+  Checkbox,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Typography,
+  FormHelperText,
+  ListItemText
+} from "@mui/material";
 
 const DataTable = () => {
   const navigate = useNavigate();
@@ -84,11 +90,44 @@ const DataTable = () => {
       name: "birthDate",
       label: "Birth Date",
       options: {
-        customBodyRender: (value: number) => {
-          return timestampToDate(value).toLocaleDateString();
+        customBodyRender: (value: number): string => {
+          return timestampToDate(value).toLocaleDateString("en-US");
         },
         //Birthdate Filtering needs to be added
         filter: true,
+        filterType: 'custom',
+        filterOptions: {
+          logic: (location, filters, row) => {
+            if (filters.length) return !filters.includes(location);
+            return false;
+          },
+          display: (filterList, onChange, index, column) => {
+            const optionValues = ['Minneapolis', 'New York', 'Seattle'];
+            return (
+              <FormControl>
+                <InputLabel htmlFor='select-multiple-chip'>
+                  Location
+                </InputLabel>
+                <Select
+                  multiple
+                  value={filterList[index]}
+                  renderValue={selected => selected.join(', ')}
+                  onChange={()=>console.log('filter')}
+                >
+                  {optionValues.map(item => (
+                    <MenuItem key={item} value={item}>
+                      <Checkbox
+                        color='primary'
+                        checked={filterList[index].indexOf(item) > -1}
+                      />
+                      <ListItemText primary={item} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            );
+          }
+        },
         sort: true,
       },
     },

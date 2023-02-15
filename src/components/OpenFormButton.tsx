@@ -2,11 +2,8 @@ import React from "react";
 import MuiButton from "@mui/material/Button";
 import { Theme } from "@mui/material/styles";
 
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import { SvgIconComponent } from "@mui/icons-material";
 interface ButtonProps {
-  //Icon needs type assignment
-  icon: any;
+  icon: JSX.Element;
   onClick: () => void;
 }
 
