@@ -1,4 +1,7 @@
+// /https://stackoverflow.com/questions/62242657/how-to-change-react-hook-form-defaultvalue-with-useeffect
+//how to display default values in react hook form if they are undefined and being fetched from api
 //Components from Libraries
+import { useState, useEffect } from "react";
 import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import {
   Button,
@@ -15,13 +18,14 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import Box from "@mui/material/Box";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../Store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 //Reducers
 import { addNewRow } from "../features/usersDataSlice";
 //Styles
 import { Theme } from "@mui/material/styles";
 //Utils
 import { Gender, users, User } from "../utils/mockData";
+import { dateToTimestamp } from "../utils/dateFormatter";
 
 const styles = {
   formHeaderLabel: () => ({
@@ -57,17 +61,50 @@ type FormValues = {
   address: string;
 };
 
+// export type NavigateProps = {
+//   id: any;
+// };
+
 const UserForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const { usersData } = useSelector((state: RootState) => state.usersData);
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  const [userInEditing, setUserInEditing] = useState<User | undefined>(
+    undefined
+  );
+  const { state } = useLocation();
+
+  const findObjectById = (usersAr: User[], id: number): User | undefined => {
+    return usersAr.find((usersAr) => usersAr.id === id);
+  };
+
+  useEffect(() => {
+    if (state) {
+      setEditingRowId(state.id);
+    } else {
+      setEditingRowId(null);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    if (editingRowId) {
+      setUserInEditing(findObjectById(usersData, editingRowId));
+    }
+  }, [editingRowId]);
+
+  useEffect(() => {
+    console.log(userInEditing);
+  }, [userInEditing]);
+
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<User>({
+  } = useForm<FormValues>({
     defaultValues: {
-      personalId: "",
+      personalId: userInEditing?.personalId || "",
       name: "",
       surname: "",
       gender: "",
@@ -79,7 +116,17 @@ const UserForm = () => {
   });
 
   const onSubmit: SubmitHandler<FormValues> = (data: FormValues) => {
-    const newRow = { id: generateRandomId(), ...data };
+    const newRow = {
+      id: generateRandomId(),
+      personalId: data.personalId,
+      name: data.name,
+      surname: data.surname,
+      gender: data.gender,
+      birthDate: dateToTimestamp(data.birthDate),
+      birthPlace: data.birthPlace,
+      phoneNumber: data.phoneNumber,
+      address: data.address,
+    };
     dispatch(addNewRow(newRow));
     navigate("/");
   };
@@ -112,12 +159,13 @@ const UserForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box sx={styles.formContainer}>
-        <Typography sx={styles.formHeaderLabel}>ველის დამატება</Typography>
+        <Typography sx={styles.formHeaderLabel}>
+          {editingRowId ? "ველის რედაქტირება" : "ველის დამატება"}
+        </Typography>
 
         <Controller
           control={control}
           name="personalId"
-          // defaultValue=""
           rules={{
             required: "Personal Id is required",
             validate: {
@@ -151,7 +199,6 @@ const UserForm = () => {
         <Controller
           control={control}
           name="name"
-          // defaultValue=""
           rules={{
             required: "Name is required",
           }}
@@ -176,7 +223,6 @@ const UserForm = () => {
         <Controller
           control={control}
           name="surname"
-          // defaultValue=""
           rules={{
             required: "Surname is required",
           }}
@@ -202,7 +248,6 @@ const UserForm = () => {
           <Controller
             name="gender"
             control={control}
-            // defaultValue=""
             rules={{ required: "Gender is required" }}
             render={({ field }) => (
               <Box>
@@ -262,7 +307,6 @@ const UserForm = () => {
         <Controller
           control={control}
           name="birthPlace"
-          // defaultValue=""
           rules={{
             required: "Birth place is required",
           }}
@@ -287,7 +331,6 @@ const UserForm = () => {
         <Controller
           control={control}
           name="phoneNumber"
-          // defaultValue={undefined}
           rules={{
             required: "Phone Number is required",
           }}
@@ -313,7 +356,6 @@ const UserForm = () => {
         <Controller
           control={control}
           name="address"
-          // defaultValue=""
           rules={{
             required: "Address Number is required",
           }}

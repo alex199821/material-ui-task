@@ -10,13 +10,11 @@ export interface User {
   name: string;
   surname: string;
   gender: Gender | string;
-  birthDate: any;
+  birthDate: number;
   birthPlace: string;
   phoneNumber: number | string;
   address: string;
 }
-
-console.log(dateToTimestamp(new Date(1998, 8, 23)));
 
 export const users: User[] = [
   {
@@ -36,7 +34,7 @@ export const users: User[] = [
     name: "Amy",
     surname: "Smith",
     gender: Gender.Female,
-    birthDate: new Date(1998, 8, 23),
+    birthDate: 906490800,
     birthPlace: "Batumi, Georgia",
     phoneNumber: 571983423,
     address: "Nutsubidze 43, Tbilisi, Georgia",
@@ -47,7 +45,7 @@ export const users: User[] = [
     name: "Bobby",
     surname: "Brown",
     gender: Gender.Male,
-    birthDate: new Date(1971, 11, 30),
+    birthDate: 62884800,
     birthPlace: "Tbilisi, Georgia",
     phoneNumber: 551349034,
     address: "Dolidze st 34, Tbilisi, Georgia",
@@ -58,7 +56,7 @@ export const users: User[] = [
     name: "Andy",
     surname: "Miller",
     gender: Gender.Male,
-    birthDate: new Date(2001, 3, 2),
+    birthDate: 986151600,
     birthPlace: "Tbilisi, Georgia",
     phoneNumber: 599093422,
     address: "Vaja Pshavela 32, Batumi, Georgia",
@@ -69,7 +67,7 @@ export const users: User[] = [
     name: "Nina",
     surname: "Williams",
     gender: Gender.Female,
-    birthDate: new Date(1992, 7, 6),
+    birthDate: 713044800,
     birthPlace: "Tbilisi, Georgia",
     phoneNumber: 555832391,
     address: "Kostava 63, Tbilisi, Georgia",

@@ -20,19 +20,20 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../Store";
 // import styles from "./styles";
+import { timestampToDate } from "../utils/dateFormatter";
 
 const DataTable = () => {
   const navigate = useNavigate();
 
   const { usersData } = useSelector((state: RootState) => state.usersData);
 
-  const handleEdit = (dataTableProps: MUIDataTableData) => {
+  const handleEdit = (dataTableProps: MUIDataTableData): void => {
     let id = dataTableProps["0" as keyof typeof dataTableProps];
-    console.log(id);
+    navigate("/userform", { state: { id: id } });
   };
 
-  const handleNewRow = () => {
-    console.log("new Row");
+  const handleNewRow = (): void => {
+    navigate("/userform");
   };
 
   const columns: MUIDataTableColumn[] = [
@@ -83,8 +84,8 @@ const DataTable = () => {
       name: "birthDate",
       label: "Birth Date",
       options: {
-        customBodyRender: (value: Date) => {
-          return value.toLocaleDateString();
+        customBodyRender: (value: number) => {
+          return timestampToDate(value).toLocaleDateString();
         },
         //Birthdate Filtering needs to be added
         filter: true,
