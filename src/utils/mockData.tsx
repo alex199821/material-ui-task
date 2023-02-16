@@ -1,5 +1,5 @@
 import { Gender, User } from "../features/usersDataSlice";
-
+//----------------Due to Redux Best Practices all data in store has to be serialized, therefore dates are stored as timestamps----------------//
 export const users: User[] = [
   {
     id: 1,

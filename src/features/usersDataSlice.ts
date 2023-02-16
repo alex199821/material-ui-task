@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { users } from "../utils/mockData";
 
+//----------------Due to Redux Best Practices all data in store has to be serialized, therefore dates are stored as timestamps----------------//
+
 export enum Gender {
   Male = "Male",
   Female = "Female",
