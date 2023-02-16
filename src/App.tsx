@@ -1,7 +1,4 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import "./App.css";
 import DataTable from "./pages/DataTable";
 import UserForm from "./pages/UserForm";
 function App() {
