@@ -9,9 +9,6 @@ export const theme = createTheme({
     secondary: {
       main: "rgba(0, 0, 0, 0.54)",
     },
-    // text: {
-    //   //   primary: "red",
-    // },
   },
   typography: {
     fontFamily: "Calibri, Sans-Serif",
@@ -22,6 +19,10 @@ export const theme = createTheme({
         head: {
           textTransform: "none",
           fontWeight: "600",
+          textAlign: "center",
+        },
+        body: {
+          textAlign: "center",
         },
       },
     },

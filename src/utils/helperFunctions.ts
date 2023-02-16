@@ -43,3 +43,7 @@ export const checkOriginalIdNumber = (
 export const findUserById = (usersAr: User[], id: number): User | undefined => {
   return usersAr.find((usersAr) => usersAr.id === id);
 };
+
+export const timestampStringtoDate = (timestampString: string): string => {
+  return timestampToDate(Number(timestampString)).toLocaleDateString("en-US");
+};

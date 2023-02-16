@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 
 import MUIDataTable, {
   MUIDataTableColumn,
@@ -13,22 +14,22 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../Store";
 // import styles from "./styles";
-import { timestampToDate } from "../utils/helperFunctions";
-
-
 import {
-  Checkbox,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Typography,
-  FormHelperText,
-  ListItemText
-} from "@mui/material";
+  timestampToDate,
+  dateToTimestamp,
+  timestampStringtoDate,
+} from "../utils/helperFunctions";
+import DateFilterComponent from "../components/DateFilterComponent";
+import { format, parseISO } from "date-fns";
+
+//MUI Components
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { TextField, Box } from "@mui/material";
 
 const DataTable = () => {
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const navigate = useNavigate();
 
   const { usersData } = useSelector((state: RootState) => state.usersData);
@@ -47,6 +48,7 @@ const DataTable = () => {
       name: "id",
       label: "id",
       options: {
+        filter: false,
         display: false,
       },
     },
@@ -93,40 +95,106 @@ const DataTable = () => {
         customBodyRender: (value: number): string => {
           return timestampToDate(value).toLocaleDateString("en-US");
         },
-        //Birthdate Filtering needs to be added
         filter: true,
-        filterType: 'custom',
+        filterType: "custom",
+        customFilterListOptions: {
+          render: (birthDateFilter) => {
+            if (birthDateFilter[0] && birthDateFilter[1]) {
+              return [
+                `Earliest Birth Date: ${timestampStringtoDate(
+                  birthDateFilter[0]
+                )}`,
+                `Latest Birth Date: ${timestampStringtoDate(
+                  birthDateFilter[1]
+                )}`,
+              ];
+            } else if (birthDateFilter[0]) {
+              return `Earliest Birth Date: ${timestampStringtoDate(
+                birthDateFilter[0]
+              )}`;
+            } else if (birthDateFilter[1]) {
+              return `Latest Birth Date: ${timestampStringtoDate(
+                birthDateFilter[1]
+              )}`;
+            }
+            return false;
+          },
+        },
         filterOptions: {
-          logic: (location, filters, row) => {
-            if (filters.length) return !filters.includes(location);
+          fullWidth: true,
+
+          logic(birthDate, filters) {
+            let birthDateTimestamp = dateToTimestamp(
+              new Date(Date.parse(birthDate))
+            );
+            if (filters[0] && filters[1]) {
+              return (
+                birthDateTimestamp < filters[0] ||
+                birthDateTimestamp > filters[1]
+              );
+            } else if (filters[0]) {
+              return birthDateTimestamp < filters[0];
+            } else if (filters[1]) {
+              return birthDateTimestamp > filters[1];
+            }
             return false;
           },
           display: (filterList, onChange, index, column) => {
-            const optionValues = ['Minneapolis', 'New York', 'Seattle'];
             return (
-              <FormControl>
-                <InputLabel htmlFor='select-multiple-chip'>
-                  Location
-                </InputLabel>
-                <Select
-                  multiple
-                  value={filterList[index]}
-                  renderValue={selected => selected.join(', ')}
-                  onChange={()=>console.log('filter')}
-                >
-                  {optionValues.map(item => (
-                    <MenuItem key={item} value={item}>
-                      <Checkbox
-                        color='primary'
-                        checked={filterList[index].indexOf(item) > -1}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Start date"
+                    value={format(
+                      parseISO('2019-02-11T14:00:00'),
+                      "dd/MM/yyyy"
+                    )}
+                    onChange={(event: Date | null) => {
+                      if (event instanceof Date)
+                        filterList[index][0] =
+                          dateToTimestamp(event).toString();
+                      onChange(filterList[index], index, column);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        sx={{ width: "48%" }}
+                        {...params}
+                        error={false}
                       />
-                      <ListItemText primary={item} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    )}
+                  />
+                </LocalizationProvider>
+
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="End date"
+                    value={format(
+                      parseISO('2019-02-11T14:00:00'),
+                      "dd/MM/yyyy"
+                    )}
+                    onChange={(event: Date | null) => {
+                      if (event instanceof Date)
+                        filterList[index][1] =
+                          dateToTimestamp(event).toString();
+                      onChange(filterList[index], index, column);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        sx={{ width: "48%" }}
+                        {...params}
+                        error={false}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+              </Box>
             );
-          }
+          },
         },
         sort: true,
       },
