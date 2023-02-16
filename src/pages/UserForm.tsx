@@ -21,8 +21,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { addNewRow, editRow } from "../features/usersDataSlice";
 //Styles
 import { Theme } from "@mui/material/styles";
+//Types
+import { Gender, User } from "../features/usersDataSlice";
 //Utils
-import { Gender, User } from "../utils/mockData";
 import {
   dateToTimestamp,
   timestampToDate,
@@ -80,6 +81,7 @@ const UserForm = () => {
 
   const { state } = useLocation();
 
+  //If there are props from Navigate row id is set
   useEffect(() => {
     if (state) {
       setEditingRowId(state.id);
@@ -88,6 +90,7 @@ const UserForm = () => {
     }
   }, [state]);
 
+  //UseEffect which finds data of user according to row id provided, and then sets this data to state controlling default values
   useEffect(() => {
     const userForEditing =
       editingRowId && findUserById(usersData, editingRowId);
@@ -99,12 +102,12 @@ const UserForm = () => {
     }
   }, [editingRowId]);
 
+  //UseEffect to reset default to values when state controlling default values is changed
   useEffect(() => {
     reset(formDefaultData);
   }, [formDefaultData]);
 
-  //React Form utilies
-
+  //React Hook Form Utilities
   const {
     control,
     handleSubmit,
@@ -117,6 +120,7 @@ const UserForm = () => {
   });
 
   const onSubmit: SubmitHandler<User> = (data: User) => {
+    //Case handling if new row is being created - new id is randomly generatad
     if (data.birthDate instanceof Date && !editingRowId) {
       dispatch(
         addNewRow({
@@ -126,6 +130,7 @@ const UserForm = () => {
         })
       );
       navigate("/");
+      //Case handling if current row is being edited
     } else if (data.birthDate instanceof Date && editingRowId) {
       dispatch(
         editRow({
@@ -143,7 +148,7 @@ const UserForm = () => {
         <Typography sx={styles.formHeaderLabel}>
           {editingRowId ? "ველის რედაქტირება" : "ველის დამატება"}
         </Typography>
-
+        {/* Input for personal id */}
         <Controller
           control={control}
           name="personalId"
@@ -179,7 +184,7 @@ const UserForm = () => {
             </Box>
           )}
         />
-
+        {/* Input for Name */}
         <Controller
           control={control}
           name="name"
@@ -203,7 +208,7 @@ const UserForm = () => {
             </Box>
           )}
         />
-
+        {/* Input for Surame */}
         <Controller
           control={control}
           name="surname"
@@ -227,7 +232,7 @@ const UserForm = () => {
             </Box>
           )}
         />
-
+        {/* Dropdown for Gender */}
         <FormControl fullWidth variant="outlined">
           <Controller
             name="gender"
@@ -256,6 +261,7 @@ const UserForm = () => {
           />
         </FormControl>
 
+        {/* Datepicker for Birth Date */}
         <Controller
           control={control}
           name="birthDate"
@@ -290,6 +296,7 @@ const UserForm = () => {
           )}
         />
 
+        {/* Input for Birthplace */}
         <Controller
           control={control}
           name="birthPlace"
@@ -314,6 +321,7 @@ const UserForm = () => {
           )}
         />
 
+        {/* Input for Phonenumber */}
         <Controller
           control={control}
           name="phoneNumber"
@@ -339,6 +347,7 @@ const UserForm = () => {
           )}
         />
 
+        {/* Input for Address */}
         <Controller
           control={control}
           name="address"
@@ -363,6 +372,7 @@ const UserForm = () => {
           )}
         />
 
+        {/* Form Submit Button */}
         <Button
           variant="contained"
           type="submit"

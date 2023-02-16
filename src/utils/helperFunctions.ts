@@ -1,4 +1,4 @@
-import { User } from "./mockData";
+import { User } from "../features/usersDataSlice";
 
 export const dateToTimestamp = (date: Date): number =>
   Math.floor(date.getTime() / 1000);

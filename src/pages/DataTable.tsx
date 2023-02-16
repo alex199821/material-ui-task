@@ -1,39 +1,31 @@
-import React from "react";
-import { useState } from "react";
-
+//Libraries
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../Store";
+//Components
+import OpenFormButton from "../components/OpenFormButton";
+//MUI Components
 import MUIDataTable, {
   MUIDataTableColumn,
   MUIDataTableData,
 } from "mui-datatables";
-
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import OpenFormButton from "../components/OpenFormButton";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { TextField, Box } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../Store";
-// import styles from "./styles";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
+//Utils
 import {
   timestampToDate,
   dateToTimestamp,
   timestampStringtoDate,
 } from "../utils/helperFunctions";
-import DateFilterComponent from "../components/DateFilterComponent";
-import { format, parseISO } from "date-fns";
-
-//MUI Components
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { TextField, Box } from "@mui/material";
 
 const DataTable = () => {
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
   const navigate = useNavigate();
-
   const { usersData } = useSelector((state: RootState) => state.usersData);
 
+  //Navigates to user form and passes id of row to be edited as props
   const handleEdit = (dataTableProps: MUIDataTableData): void => {
     let id = dataTableProps["0" as keyof typeof dataTableProps];
     navigate("/userform", { state: { id: id } });
@@ -98,6 +90,7 @@ const DataTable = () => {
         filter: true,
         filterType: "custom",
         customFilterListOptions: {
+          //Option which renders filters and their data to Datatable 
           render: (birthDateFilter) => {
             if (birthDateFilter[0] && birthDateFilter[1]) {
               return [
@@ -124,6 +117,7 @@ const DataTable = () => {
           fullWidth: true,
 
           logic(birthDate, filters) {
+            //Function to compare Birthdates of Users to provided filters and filter accordingly
             let birthDateTimestamp = dateToTimestamp(
               new Date(Date.parse(birthDate))
             );
@@ -140,6 +134,7 @@ const DataTable = () => {
             return false;
           },
           display: (filterList, onChange, index, column) => {
+            //Datepicker Components for filtering Datatable according to Date filters
             return (
               <Box
                 sx={{
@@ -150,10 +145,8 @@ const DataTable = () => {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <DatePicker
                     label="Start date"
-                    value={format(
-                      parseISO('2019-02-11T14:00:00'),
-                      "dd/MM/yyyy"
-                    )}
+                    inputFormat="dd/MM/yyyy"
+                    value={timestampStringtoDate(filterList[index][0])}
                     onChange={(event: Date | null) => {
                       if (event instanceof Date)
                         filterList[index][0] =
@@ -173,10 +166,8 @@ const DataTable = () => {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <DatePicker
                     label="End date"
-                    value={format(
-                      parseISO('2019-02-11T14:00:00'),
-                      "dd/MM/yyyy"
-                    )}
+                    inputFormat="dd/MM/yyyy"
+                    value={timestampStringtoDate(filterList[index][1])}
                     onChange={(event: Date | null) => {
                       if (event instanceof Date)
                         filterList[index][1] =
@@ -226,6 +217,7 @@ const DataTable = () => {
         filterType: "textField",
       },
     },
+    // Below is edit button which redirects user to form and provides as props row id
     {
       name: "",
       options: {
