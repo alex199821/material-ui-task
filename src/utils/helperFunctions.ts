@@ -1,5 +1,4 @@
-import { User } from "../features/usersDataSlice";
-
+import { User } from "../interfaces";
 //Function to convert date to timestamp
 export const dateToTimestamp = (date: Date): number =>
   Math.floor(date.getTime() / 1000);

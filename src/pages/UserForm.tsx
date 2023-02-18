@@ -22,7 +22,7 @@ import { addNewRow, editRow } from "../features/usersDataSlice";
 //Styles
 import { Theme } from "@mui/material/styles";
 //Types
-import { Gender, User } from "../features/usersDataSlice";
+import { Gender, User } from "../interfaces";
 //Utils
 import {
   dateToTimestamp,
